@@ -152,6 +152,60 @@ Everything in `config/config.yaml` is safe to adjust without touching code:
 - `session.start_hour` / `end_hour` — trading window in UTC.
 - `execution.poll_interval_seconds` — how often the bot checks for new bars.
 
+## Running unattended (VPS / Windows service)
+
+For the bot to run continuously without a Claude Code session or terminal
+window staying open, install it as a Windows service using
+[NSSM](https://nssm.cc/download) (works the same on a Windows VPS as on a
+local machine):
+
+1. **On the target machine (VPS or local):**
+   - Install Python 3.9+, clone/copy this repo, `pip install -r requirements.txt`.
+   - Create `.env` directly on that machine (don't transfer it over an
+     insecure channel — recreate it there).
+   - Install the MT5 terminal, log into your account, **enable Algo Trading**
+     (toolbar toggle), and check **"Save account information"** on login so
+     it auto-reconnects after a reboot without manual re-login.
+
+2. **Install NSSM and register the service** (from an elevated
+   PowerShell/cmd):
+
+   ```
+   nssm install TradingBot "C:\Path\To\python.exe" "C:\Path\To\trading-bot\scripts\run_bot.py"
+   nssm set TradingBot AppDirectory "C:\Path\To\trading-bot"
+   nssm set TradingBot AppStdout "C:\Path\To\trading-bot\logs\service_stdout.log"
+   nssm set TradingBot AppStderr "C:\Path\To\trading-bot\logs\service_stderr.log"
+   ```
+
+   **Important:** set the service to log on as the actual Windows user
+   account you use to run MT5 (NSSM GUI: `nssm edit TradingBot` → "Log on"
+   tab), not `Local System`. The MT5 terminal often can't be reached
+   correctly by a service running under `Local System` since it's not in
+   the same interactive session.
+
+3. **Start it and verify:**
+
+   ```
+   nssm start TradingBot
+   nssm status TradingBot
+   ```
+
+   Check `logs/bot.log` to confirm it connected and is polling.
+
+4. **Manage it:**
+
+   ```
+   nssm stop TradingBot
+   nssm restart TradingBot
+   nssm remove TradingBot confirm   # uninstall
+   ```
+
+   Or use `services.msc` / Task Scheduler's Services view for a GUI.
+
+If you're setting this up via a Claude Code session running on the VPS
+itself (over SSH), point it at this README and the steps above — everything
+it needs (code, config shape, service steps) is in this repo.
+
 ## Disclaimer
 
 This is a template for learning and experimentation. Trading carries real
