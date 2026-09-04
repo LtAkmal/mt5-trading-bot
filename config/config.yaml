@@ -1,0 +1,36 @@
+account:
+  demo: true
+
+symbols:
+  - XAUUSDm  # Exness-MT5Trial14 naming (micro suffix)
+
+timeframes:
+  trend: H1
+  entry: M15
+
+strategy:
+  trend_ema_fast: 50
+  trend_ema_slow: 200
+  entry_ema_fast: 9
+  entry_ema_slow: 21
+  rsi_period: 14
+  rsi_upper: 70
+  rsi_lower: 30
+  atr_period: 14
+  atr_sl_multiplier: 1.5
+  atr_tp_multiplier: 2.5
+
+risk:
+  risk_pct_per_trade: 0.01   # 1% of balance risked per trade
+  max_trades_per_day: 3      # hard cap across all symbols combined
+  max_daily_loss_pct: 0.03   # stop opening new trades after -3% day
+
+session:
+  # trading window in UTC hours (London/NY overlap by default)
+  start_hour: 7
+  end_hour: 20
+
+execution:
+  magic_number: 987654
+  poll_interval_seconds: 30
+  deviation_points: 20
